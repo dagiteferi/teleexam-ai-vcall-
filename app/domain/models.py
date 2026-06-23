@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 from datetime import datetime
 from typing import List, Optional
 
@@ -36,4 +34,3 @@ class CurriculumChunk(BaseModel):
     content: str
     source: str
     embedding: Optional[List[float]] = None
->>>>>>> 33279d0 (feat: add LearnerProfile and CurriculumChunk domain models)
