@@ -18,6 +18,7 @@ class Turn(BaseModel):
     intent: str
     ai_response: str
     latency_ms: int
+
     created_at: datetime
 
 class LearnerProfile(BaseModel):
@@ -34,3 +35,4 @@ class CurriculumChunk(BaseModel):
     content: str
     source: str
     embedding: Optional[List[float]] = None
+    created_at: datetime
