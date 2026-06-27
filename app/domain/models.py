@@ -36,3 +36,5 @@ class CurriculumChunk(BaseModel):
     source: str
     embedding: Optional[List[float]] = None
     created_at: datetime
+    embedding: Optional[List[float]] = None
+
