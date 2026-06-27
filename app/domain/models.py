@@ -19,3 +19,18 @@ class Turn(BaseModel):
     ai_response: str
     latency_ms: int
     created_at: datetime
+
+class LearnerProfile(BaseModel):
+    user_id: int
+    telegram_id: int
+    weak_topics: List[str]
+    avg_score: float
+    exams_done: int
+    last_seen_at: Optional[datetime] = None
+
+class CurriculumChunk(BaseModel):
+    chunk_id: str
+    topic: str
+    content: str
+    source: str
+    embedding: Optional[List[float]] = None
