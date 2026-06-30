@@ -6,4 +6,4 @@ teleexam_env/
 .env
 __pycache__/
 *.pyc
-
+create_project_structure.ps1
