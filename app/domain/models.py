@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
 class CallSession(BaseModel):
     session_id: str
     user_id: int
@@ -18,8 +20,8 @@ class Turn(BaseModel):
     intent: str
     ai_response: str
     latency_ms: int
-
     created_at: datetime
+
 
 class LearnerProfile(BaseModel):
     user_id: int
@@ -29,12 +31,11 @@ class LearnerProfile(BaseModel):
     exams_done: int
     last_seen_at: Optional[datetime] = None
 
+
 class CurriculumChunk(BaseModel):
     chunk_id: str
     topic: str
     content: str
     source: str
     embedding: Optional[List[float]] = None
-    created_at: datetime
-    embedding: Optional[List[float]] = None
-
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
