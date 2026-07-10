@@ -63,3 +63,13 @@ class FakeVectorSearchPort:
         return [
             "Relevant curriculum content about data structures"
         ]
+class FakeTTSPort:
+
+    async def speak_stream(self, token_stream):
+
+        response = ""
+
+        async for token in token_stream:
+            response += token
+
+        return response
