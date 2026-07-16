@@ -1,0 +1,17 @@
+Data Structures
+
+A data structure is a method of organizing data so that operations such as searching, insertion, deletion, and traversal can be performed efficiently.
+
+Arrays store elements in contiguous memory locations.
+
+Linked lists consist of nodes connected by pointers.
+
+Stacks follow the Last In First Out (LIFO) principle.
+
+Queues follow the First In First Out (FIFO) principle.
+
+Trees organize data hierarchically.
+
+Graphs represent relationships between objects using vertices and edges.
+
+Choosing the correct data structure improves algorithm performance and memory usage.

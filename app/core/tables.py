@@ -47,5 +47,5 @@ class CurriculumChunkTable(Base):
     topic = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     source = Column(String, nullable=False)
-    embedding = Column(Vector(1536), nullable=True)
+    embedding = Column(Vector(1024), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False)

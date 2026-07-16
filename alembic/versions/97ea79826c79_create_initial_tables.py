@@ -75,7 +75,7 @@ def upgrade() -> None:
         sa.Column("source", sa.String(), nullable=False),
         sa.Column(
             "embedding",
-            Vector(1536),
+            Vector(1024),
             nullable=True,
         ),
         sa.Column(

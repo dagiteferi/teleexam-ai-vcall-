@@ -1,0 +1,19 @@
+Computer Networks
+
+A computer network connects multiple devices to share resources and exchange information.
+
+The OSI model contains seven layers.
+
+The TCP/IP model is widely used on the Internet.
+
+IP addresses uniquely identify devices.
+
+Routers forward packets between networks.
+
+Switches connect devices within a local network.
+
+TCP provides reliable communication.
+
+UDP provides fast communication with less overhead.
+
+Network security includes encryption, authentication, and firewalls.
