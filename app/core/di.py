@@ -25,16 +25,22 @@ from app.adapters.outbound.video.youtube_adapter import YouTubeAdapter
 # Cache
 from app.adapters.outbound.cache.redis_adapter import RedisAdapter
 
+# Media
+from app.adapters.outbound.media.livekit_adapter import LiveKitAdapter
+
 # Database
 from app.adapters.outbound.db.postgres_call_repo import (
     PostgresCallRepository,
 )
+
 from app.adapters.outbound.db.postgres_profile_repo import (
     PostgresProfileRepository,
 )
+
 from app.adapters.outbound.db.postgres_curriculum_repo import (
     PostgresCurriculumRepository,
 )
+
 from app.adapters.outbound.db.postgres_vector_search import (
     PostgresVectorSearchAdapter,
 )
@@ -45,29 +51,45 @@ def build_dependencies(
     session: AsyncSession,
 ) -> AgentDependencies:
 
+    # LLM
     llm = GroqLLMAdapter(
         model=settings.groq_model,
     )
 
+    # STT
     stt = AssemblyAIAdapter()
 
+    # TTS
     tts = CartesiaTTSAdapter()
 
+    # Embeddings
     embeddings = VoyageAdapter(settings)
 
+    # Vector Search
     vector_search = PostgresVectorSearchAdapter(
         session=session,
     )
 
+    # Web Search
     web_search = TavilyAdapter(settings)
 
+    # Video Search
     video_search = YouTubeAdapter()
 
+    # Cache
     cache = RedisAdapter(
         host=settings.redis_host,
         port=settings.redis_port,
     )
 
+    # LiveKit Media
+    media = LiveKitAdapter(
+        url=settings.livekit_url,
+        api_key=settings.livekit_api_key,
+        api_secret=settings.livekit_api_secret,
+    )
+
+    # Repositories
     call_repo = PostgresCallRepository(
         session=session,
     )
@@ -80,6 +102,7 @@ def build_dependencies(
         session=session,
     )
 
+
     return AgentDependencies(
         llm=llm,
         stt=stt,
@@ -89,18 +112,22 @@ def build_dependencies(
         web_search=web_search,
         video_search=video_search,
         cache=cache,
+        media=media,
         call_repo=call_repo,
         profile_repo=profile_repo,
         curriculum_repo=curriculum_repo,
     )
 
 
-async def get_dependencies() -> AgentDependencies:
+async def get_dependencies():
     async with async_session() as session:
-        return build_dependencies(
+
+        deps = build_dependencies(
             settings=settings,
             session=session,
         )
+
+        yield deps
 
 
 dependencies = get_dependencies
