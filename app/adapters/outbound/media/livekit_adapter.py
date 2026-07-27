@@ -11,14 +11,14 @@ class LiveKitAdapter(MediaSessionPort):
         api_key: str | None,
         api_secret: str | None,
     ):
+        if not api_key or not api_secret:
+            raise ValueError(
+                "LiveKit credentials missing"
+            )
+
         self.url = url
         self.api_key = api_key
         self.api_secret = api_secret
-
-        if not api_key or not api_secret:
-            raise ValueError(
-                "LiveKit API key and secret are required"
-            )
 
 
     async def create_room(
@@ -26,25 +26,29 @@ class LiveKitAdapter(MediaSessionPort):
         room_name: str,
     ) -> None:
 
-        # LiveKit creates rooms automatically when
-        # the first participant joins.
-        #
-        # This method exists because our architecture
-        # requires a room creation step.
-
-        room_service = api.LiveKitAPI(
+        client = api.LiveKitAPI(
             self.url,
             self.api_key,
             self.api_secret,
         )
 
-        await room_service.room.create_room(
-            api.CreateRoomRequest(
-                name=room_name
-            )
-        )
+        try:
 
-        await room_service.aclose()
+            await client.room.create_room(
+                api.CreateRoomRequest(
+                    name=room_name
+                )
+            )
+
+        except Exception as e:
+
+            # Ignore existing rooms
+            if "already exists" not in str(e).lower():
+                raise
+
+        finally:
+            await client.aclose()
+
 
 
     async def create_token(
@@ -64,6 +68,8 @@ class LiveKitAdapter(MediaSessionPort):
                 api.VideoGrants(
                     room_join=True,
                     room=room_name,
+                    can_publish=True,
+                    can_subscribe=True,
                 )
             )
         )
