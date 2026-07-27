@@ -8,6 +8,7 @@ from app.ports.vector_search_port import VectorSearchPort
 from app.ports.web_search_port import WebSearchPort
 from app.ports.video_search_port import VideoSearchPort
 from app.ports.cache_port import CachePort
+from app.ports.media_session_port import MediaSessionPort
 from app.ports.repositories import (
     CallSessionRepositoryPort,
     LearnerProfileRepositoryPort,
@@ -26,6 +27,7 @@ class AgentDependencies:
     web_search: WebSearchPort
     video_search: VideoSearchPort
     cache: CachePort
+    media: MediaSessionPort      # ← NEW
     call_repo: CallSessionRepositoryPort
     profile_repo: LearnerProfileRepositoryPort
     curriculum_repo: CurriculumRepositoryPort
