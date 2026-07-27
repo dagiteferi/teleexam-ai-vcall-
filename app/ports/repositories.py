@@ -4,6 +4,7 @@ from app.domain.models import (
     CallSession,
     CurriculumChunk,
     LearnerProfile,
+    Turn,
 )
 
 
@@ -24,6 +25,12 @@ class CallSessionRepositoryPort(Protocol):
         self,
         session_id: str,
         status: str,
+    ) -> None:
+        ...
+
+    async def save_turn(
+        self,
+        turn: Turn,
     ) -> None:
         ...
 
