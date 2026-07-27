@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     livekit_url: str = "ws://localhost:7880"
     livekit_api_key: Optional[str] = None
     livekit_api_secret: Optional[str] = None
-
+   # Admin
+    admin_api_key: Optional[str] = None
 
 settings = Settings()
