@@ -14,6 +14,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    restart: unless-stopped
+
   redis:
     image: redis:7
     container_name: teleexam-redis
@@ -23,6 +25,38 @@ services:
 
     volumes:
       - redis_data:/data
+
+    restart: unless-stopped
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: teleexam-livekit
+
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+
+    environment:
+      LIVEKIT_KEYS: "devkey: supersecret12345678901234567890"
+
+    restart: unless-stopped
+
+  vcall-service:
+    build: .
+    container_name: teleexam-vcall
+
+    ports:
+      - "8001:8001"
+
+    env_file:
+      - .env
+
+    depends_on:
+      - postgres
+      - redis
+      - livekit
+
+    restart: unless-stopped
 
 volumes:
   postgres_data:
