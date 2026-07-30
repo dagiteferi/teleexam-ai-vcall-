@@ -8,7 +8,9 @@ from app.ports.tts_port import TTSPort
 
 class CartesiaTTSAdapter(TTSPort):
     def __init__(self) -> None:
-        self.client = Cartesia(api_key=settings.cartesia_api_key)
+        self.client = Cartesia(
+            api_key=settings.cartesia_api_key
+        )
 
     async def speak_stream(
         self,
@@ -19,6 +21,17 @@ class CartesiaTTSAdapter(TTSPort):
 
         sentence_endings = {".", "!", "?", "\n"}
 
+        voice = {
+            "mode": "id",
+            "id": "694f9389-aac1-45b6-b726-9d9369183238",
+        }
+
+        output_format = {
+            "container": "wav",
+            "encoding": "pcm_s16le",
+            "sample_rate": 16000,
+        }
+
         async for token in text_stream:
             full_text += token
             buffer += token
@@ -27,16 +40,12 @@ class CartesiaTTSAdapter(TTSPort):
                 audio = self.client.tts.bytes(
                     model_id="sonic-english",
                     transcript=buffer.strip(),
-                    voice_id="694f9389-aac1-45b6-b726-9d9369183238",
-                    output_format={
-                        "container": "wav",
-                        "encoding": "pcm_s16le",
-                        "sample_rate": 16000,
-                    },
+                    voice=voice,
+                    output_format=output_format,
                 )
 
                 # TODO:
-                # Send 'audio' to the LiveKit adapter once implemented.
+                # Send audio to LiveKit adapter once implemented.
 
                 buffer = ""
 
@@ -44,12 +53,8 @@ class CartesiaTTSAdapter(TTSPort):
             audio = self.client.tts.bytes(
                 model_id="sonic-english",
                 transcript=buffer.strip(),
-                voice_id="694f9389-aac1-45b6-b726-9d9369183238",
-                output_format={
-                    "container": "wav",
-                    "encoding": "pcm_s16le",
-                    "sample_rate": 16000,
-                },
+                voice=voice,
+                output_format=output_format,
             )
 
             # TODO:

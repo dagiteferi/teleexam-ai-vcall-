@@ -3,10 +3,14 @@ from app.agents.state import AgentState
 from app.core.utils import stable_hash
 
 
+from langchain_core.runnables import RunnableConfig
+
 async def curriculum_agent_node(
     state: AgentState,
-    deps: AgentDependencies,
+    config: RunnableConfig,
 ) -> AgentState:
+
+    deps: AgentDependencies = config["configurable"]["deps"]
     """
     Retrieves relevant curriculum content using RAG.
 

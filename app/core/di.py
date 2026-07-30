@@ -18,6 +18,9 @@ from app.adapters.outbound.embeddings.voyage_adapter import VoyageAdapter
 
 # Search
 from app.adapters.outbound.search.tavily_adapter import TavilyAdapter
+from app.adapters.outbound.search.noop_search_adapter import (
+    NoOpSearchAdapter,
+)
 
 # Video
 from app.adapters.outbound.video.youtube_adapter import YouTubeAdapter
@@ -71,7 +74,10 @@ def build_dependencies(
     )
 
     # Web Search
-    web_search = TavilyAdapter(settings)
+    if settings.tavily_api_key:
+        web_search = TavilyAdapter(settings)
+    else:
+        web_search = NoOpSearchAdapter()
 
     # Video Search
     video_search = YouTubeAdapter()
@@ -102,7 +108,6 @@ def build_dependencies(
         session=session,
     )
 
-
     return AgentDependencies(
         llm=llm,
         stt=stt,
@@ -121,7 +126,6 @@ def build_dependencies(
 
 async def get_dependencies():
     async with async_session() as session:
-
         deps = build_dependencies(
             settings=settings,
             session=session,
