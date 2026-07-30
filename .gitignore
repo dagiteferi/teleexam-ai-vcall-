@@ -7,3 +7,5 @@ teleexam_env/
 __pycache__/
 *.pyc
 create_project_structure.ps1
+installed_packages.txt
+ren requirements.txt

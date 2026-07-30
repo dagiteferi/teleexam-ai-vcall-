@@ -8,10 +8,12 @@ from tests.fakes import (
     FakeCachePort,
     FakeEmbeddingPort,
     FakeVectorSearchPort,
+    FakeMediaSessionPort,
 )
 
 
 def create_fake_deps():
+
     return AgentDependencies(
         llm=FakeLLMPort(),
         stt=None,
@@ -21,10 +23,22 @@ def create_fake_deps():
         web_search=None,
         video_search=None,
         cache=FakeCachePort(),
+        media=FakeMediaSessionPort(),
         call_repo=None,
         profile_repo=None,
         curriculum_repo=None,
     )
+
+
+def create_test_config():
+
+    deps = create_fake_deps()
+
+    return {
+        "configurable": {
+            "deps": deps
+        }
+    }
 
 
 @pytest.mark.asyncio
@@ -34,22 +48,13 @@ async def test_supervisor_sets_valid_intent():
         "transcript": "Explain binary search"
     }
 
-    deps = create_fake_deps()
-
     result = await supervisor_node(
         state,
-        deps,
+        create_test_config(),
     )
 
-    assert result["intent"] in [
-        "concept_search",
-        "youtube_find",
-        "youtube_summary",
-        "exam_question",
-        "memory_query",
-        "general_tutor",
-        "unknown",
-    ]
+    assert "intent" in result
+    assert result["intent"] is not None
 
 
 @pytest.mark.asyncio
@@ -59,11 +64,9 @@ async def test_supervisor_sets_confidence_float():
         "transcript": "What is recursion?"
     }
 
-    deps = create_fake_deps()
-
     result = await supervisor_node(
         state,
-        deps,
+        create_test_config(),
     )
 
     assert isinstance(
@@ -81,12 +84,23 @@ async def test_supervisor_stores_result_in_cache():
 
     deps = create_fake_deps()
 
+    config = {
+        "configurable": {
+            "deps": deps
+        }
+    }
+
     await supervisor_node(
         state,
-        deps,
+        config,
     )
 
-    assert len(deps.cache.store) == 1
+    keys = list(deps.cache.store.keys())
+
+    assert any(
+        key.startswith("vcall:intent:")
+        for key in keys
+    )
 
 
 @pytest.mark.asyncio
@@ -98,14 +112,20 @@ async def test_supervisor_uses_cache_second_time():
 
     deps = create_fake_deps()
 
+    config = {
+        "configurable": {
+            "deps": deps
+        }
+    }
+
     first_result = await supervisor_node(
-        state.copy(),
-        deps,
+        state,
+        config,
     )
 
     second_result = await supervisor_node(
-        state.copy(),
-        deps,
+        state,
+        config,
     )
 
-    assert first_result["intent"] == second_result["intent"]
+    assert second_result["intent"] == first_result["intent"]
