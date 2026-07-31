@@ -9,3 +9,4 @@ __pycache__/
 create_project_structure.ps1
 installed_packages.txt
 ren requirements.txt
+.env.docker
