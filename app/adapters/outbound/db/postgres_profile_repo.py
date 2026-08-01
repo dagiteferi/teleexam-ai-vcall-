@@ -53,3 +53,36 @@ class PostgresProfileRepository(
             exams_done=row["exams_done"] or 0,
             last_seen_at=row["last_seen_at"],
         )
+
+    async def create(
+        self,
+        telegram_id: int,
+    ) -> None:
+
+        query = text(
+            """
+            INSERT INTO learner_profiles (
+                telegram_id,
+                weak_topics,
+                avg_score,
+                exams_done
+            )
+            VALUES (
+                :telegram_id,
+                ARRAY[]::text[],
+                0,
+                0
+            )
+            ON CONFLICT (telegram_id)
+            DO NOTHING
+            """
+        )
+
+        await self.session.execute(
+            query,
+            {
+                "telegram_id": telegram_id,
+            },
+        )
+
+        await self.session.commit()

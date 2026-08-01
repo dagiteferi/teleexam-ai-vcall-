@@ -42,6 +42,12 @@ class LearnerProfileRepositoryPort(Protocol):
     ) -> Optional[LearnerProfile]:
         ...
 
+    async def create(
+        self,
+        telegram_id: int,
+    ) -> None:
+        ...
+
 
 class CurriculumRepositoryPort(Protocol):
     async def save_chunk(

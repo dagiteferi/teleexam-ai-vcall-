@@ -10,6 +10,16 @@ async def start_call_session(
     user_id: int,
     deps: AgentDependencies,
 ) -> CallSession:
+
+    profile = await deps.profile_repo.get_by_telegram_id(
+        telegram_id
+    )
+
+    if profile is None:
+        await deps.profile_repo.create(
+            telegram_id
+        )
+
     # Generate a unique session ID
     session_id = str(uuid4())
 
