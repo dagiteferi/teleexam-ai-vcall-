@@ -41,10 +41,14 @@ Return the result using the provided schema only.
 from app.agents.deps import AgentDependencies
 
 
+from langchain_core.runnables import RunnableConfig
+
 async def supervisor_node(
     state: AgentState,
-    deps: AgentDependencies,
+    config: RunnableConfig,
 ) -> AgentState:
+
+    deps: AgentDependencies = config["configurable"]["deps"]
     cache_key = f"vcall:intent:{stable_hash(state['transcript'])}"
 
     cached = await deps.cache.get(cache_key)

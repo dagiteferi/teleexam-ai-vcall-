@@ -10,7 +10,10 @@ from tests.fakes import (
     FakeEmbeddingPort,
     FakeVectorSearchPort,
     FakeTTSPort,
+    FakeMediaSessionPort,
 )
+
+
 def create_fake_deps():
 
     return AgentDependencies(
@@ -22,10 +25,24 @@ def create_fake_deps():
         web_search=None,
         video_search=None,
         cache=FakeCachePort(),
+        media=FakeMediaSessionPort(),
         call_repo=None,
         profile_repo=None,
         curriculum_repo=None,
     )
+
+
+def create_test_config():
+
+    deps = create_fake_deps()
+
+    return {
+        "configurable": {
+            "deps": deps
+        }
+    }
+
+
 @pytest.mark.asyncio
 async def test_curriculum_agent_sets_rag_context():
 
@@ -33,11 +50,9 @@ async def test_curriculum_agent_sets_rag_context():
         "transcript": "Explain data structures"
     }
 
-    deps = create_fake_deps()
-
     result = await curriculum_agent_node(
         state,
-        deps,
+        create_test_config(),
     )
 
     assert "rag_context" in result
@@ -45,6 +60,8 @@ async def test_curriculum_agent_sets_rag_context():
         result["rag_context"],
         str,
     )
+
+
 @pytest.mark.asyncio
 async def test_synthesizer_with_rag_context_sets_response():
 
@@ -54,11 +71,9 @@ async def test_synthesizer_with_rag_context_sets_response():
         "chat_history": [],
     }
 
-    deps = create_fake_deps()
-
     result = await synthesizer_node(
         state,
-        deps,
+        create_test_config(),
     )
 
     assert "ai_response" in result
@@ -66,6 +81,8 @@ async def test_synthesizer_with_rag_context_sets_response():
         result["ai_response"],
         str,
     )
+
+
 @pytest.mark.asyncio
 async def test_synthesizer_with_search_results_sets_response():
 
@@ -75,11 +92,9 @@ async def test_synthesizer_with_search_results_sets_response():
         "chat_history": [],
     }
 
-    deps = create_fake_deps()
-
     result = await synthesizer_node(
         state,
-        deps,
+        create_test_config(),
     )
 
     assert "ai_response" in result
@@ -87,6 +102,8 @@ async def test_synthesizer_with_search_results_sets_response():
         result["ai_response"],
         str,
     )
+
+
 @pytest.mark.asyncio
 async def test_synthesizer_grows_chat_history():
 
@@ -95,11 +112,9 @@ async def test_synthesizer_grows_chat_history():
         "chat_history": [],
     }
 
-    deps = create_fake_deps()
-
     result = await synthesizer_node(
         state,
-        deps,
+        create_test_config(),
     )
 
     assert len(result["chat_history"]) == 2

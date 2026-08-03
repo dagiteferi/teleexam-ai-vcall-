@@ -4,6 +4,7 @@ from app.domain.models import (
     CallSession,
     CurriculumChunk,
     LearnerProfile,
+    Turn,
 )
 
 
@@ -27,12 +28,24 @@ class CallSessionRepositoryPort(Protocol):
     ) -> None:
         ...
 
+    async def save_turn(
+        self,
+        turn: Turn,
+    ) -> None:
+        ...
+
 
 class LearnerProfileRepositoryPort(Protocol):
     async def get_by_telegram_id(
         self,
         telegram_id: int,
     ) -> Optional[LearnerProfile]:
+        ...
+
+    async def create(
+        self,
+        telegram_id: int,
+    ) -> None:
         ...
 
 

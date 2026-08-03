@@ -63,10 +63,14 @@ def _build_system_prompt(state: AgentState) -> str:
     return prompt
 
 
+from langchain_core.runnables import RunnableConfig
+
 async def synthesizer_node(
     state: AgentState,
-    deps: AgentDependencies,
+    config: RunnableConfig,
 ) -> AgentState:
+
+    deps: AgentDependencies = config["configurable"]["deps"]
 
     system_prompt = _build_system_prompt(state)
 

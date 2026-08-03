@@ -1,5 +1,7 @@
 import json
 
+from langchain_core.runnables import RunnableConfig
+
 from app.agents.deps import AgentDependencies
 from app.agents.state import AgentState
 from app.core.utils import stable_hash
@@ -7,12 +9,14 @@ from app.core.utils import stable_hash
 
 async def youtube_find_node(
     state: AgentState,
-    deps: AgentDependencies,
+    config: RunnableConfig,
 ) -> AgentState:
     """
     Finds a YouTube video related to the student's request.
     Results are cached for 60 minutes.
     """
+
+    deps: AgentDependencies = config["configurable"]["deps"]
 
     cache_key = f"vcall:yt:{stable_hash(state['transcript'])}"
 
@@ -39,13 +43,15 @@ async def youtube_find_node(
 
 async def youtube_summarize_node(
     state: AgentState,
-    deps: AgentDependencies,
+    config: RunnableConfig,
 ) -> AgentState:
     """
     Summarizes a YouTube video.
     Uses an existing video URL if available,
     otherwise searches for one first.
     """
+
+    deps: AgentDependencies = config["configurable"]["deps"]
 
     youtube_data = state.get("youtube_data")
 

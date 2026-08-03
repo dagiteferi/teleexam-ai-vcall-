@@ -1,5 +1,3 @@
-# READ-ONLY — never write to TeleExam monolith tables
-
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,41 +20,23 @@ class PostgresProfileRepository(
         query = text(
             """
             SELECT
-                u.id AS user_id,
-                u.telegram_id,
-                COALESCE(
-                    ARRAY_AGG(
-                        ute.topic
-                    ) FILTER (
-                        WHERE ute.topic IS NOT NULL
-                    ),
-                    '{}'
-                ) AS weak_topics,
-                COALESCE(
-                    AVG(er.score),
-                    0
-                ) AS avg_score,
-                COUNT(er.id) AS exams_done,
-                MAX(u.last_seen_at) AS last_seen_at
+                id AS user_id,
+                telegram_id,
+                weak_topics,
+                avg_score,
+                exams_done,
+                last_seen_at
 
-            FROM users u
+            FROM learner_profiles
 
-            LEFT JOIN user_topic_errors ute
-                ON ute.user_id = u.id
-
-            LEFT JOIN exam_results er
-                ON er.user_id = u.id
-
-            WHERE u.telegram_id = :telegram_id
-
-            GROUP BY u.id
+            WHERE telegram_id = :telegram_id
             """
         )
 
         result = await self.session.execute(
             query,
             {
-                "telegram_id": telegram_id
+                "telegram_id": telegram_id,
             },
         )
 
@@ -68,8 +48,41 @@ class PostgresProfileRepository(
         return LearnerProfile(
             user_id=row["user_id"],
             telegram_id=row["telegram_id"],
-            weak_topics=row["weak_topics"],
-            avg_score=float(row["avg_score"]),
-            exams_done=row["exams_done"],
+            weak_topics=row["weak_topics"] or [],
+            avg_score=float(row["avg_score"] or 0),
+            exams_done=row["exams_done"] or 0,
             last_seen_at=row["last_seen_at"],
         )
+
+    async def create(
+        self,
+        telegram_id: int,
+    ) -> None:
+
+        query = text(
+            """
+            INSERT INTO learner_profiles (
+                telegram_id,
+                weak_topics,
+                avg_score,
+                exams_done
+            )
+            VALUES (
+                :telegram_id,
+                ARRAY[]::text[],
+                0,
+                0
+            )
+            ON CONFLICT (telegram_id)
+            DO NOTHING
+            """
+        )
+
+        await self.session.execute(
+            query,
+            {
+                "telegram_id": telegram_id,
+            },
+        )
+
+        await self.session.commit()

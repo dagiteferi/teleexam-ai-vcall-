@@ -63,6 +63,8 @@ class FakeVectorSearchPort:
         return [
             "Relevant curriculum content about data structures"
         ]
+
+
 class FakeTTSPort:
 
     async def speak_stream(self, token_stream):
@@ -73,3 +75,12 @@ class FakeTTSPort:
             response += token
 
         return response
+
+
+class FakeMediaSessionPort:
+
+    async def create_session(self, *args, **kwargs):
+        return True
+
+    async def close_session(self, *args, **kwargs):
+        return True
