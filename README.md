@@ -643,7 +643,110 @@ The websocket verifies that the session exists and `session.telegram_id` matches
 
 ---
 
+## Architecture diagram
+
+```mermaid
+flowchart LR
+    Client[Client / WebSocket Client] --> HTTP[FastAPI HTTP Routes]
+    Client --> WS[WebSocket Endpoint\n/vcall/ws/{session_id}]
+
+    HTTP --> App[Application Services\nstart_call_session / end_call_session / process_turn]
+    WS --> App
+
+    App --> Graph[LangGraph Agent Graph\nSupervisor -> Agents -> Synthesizer]
+    Graph --> LLM[Groq LLM Adapter]
+    Graph --> Search[Tavily Search Adapter]
+    Graph --> Embeddings[Voyage Embeddings Adapter]
+    Graph --> Cache[(Redis Cache)]
+    Graph --> Repo[(Postgres)]
+    App --> Media[LiveKit Adapter]
+
+    Repo --> Curriculum[Curriculum Chunks]
+    Repo --> Sessions[Call Sessions / Turns]
+    Repo --> Profiles[Learner Profiles]
+
+    Media --> Room[LiveKit Room + Token]
+    Search --> Web[Web Search Results]
+    Embeddings --> Vector[pgvector Similarity Search]
+    LLM --> Tutor[AI Tutor Response]
+```
+
+### Use case diagram
+
+```mermaid
+flowchart LR
+    Student[Student] --> Start[Start tutoring session]
+    Student --> Send[Send transcript over WebSocket]
+    Student --> GetProfile[Read learner profile]
+    Student --> End[End session]
+
+    Admin[Admin] --> Ingest[Ingest curriculum data]
+
+    Start --> API[FastAPI API]
+    Send --> API
+    GetProfile --> API
+    End --> API
+    Ingest --> API
+
+    API --> Sessions[Call Session Repository]
+    API --> Profiles[Learner Profile Repository]
+    API --> Graph[AI Tutor Graph]
+    Graph --> Redis[(Redis Cache)]
+    Graph --> DB[(Postgres)]
+    Graph --> LiveKit[LiveKit Media Layer]
+    Graph --> LLM[Groq LLM]
+    Graph --> Search[Tavily Search]
+    Graph --> Embeddings[Voyage Embeddings]
+```
+
+---
+
 ## Database
+
+### Database schema diagram
+
+```mermaid
+erDiagram
+    CALL_SESSION ||--o{ CALL_TURN : contains
+
+    CALL_SESSION {
+        string session_id PK
+        int user_id
+        bigint telegram_id
+        string room_name
+        string status
+        datetime started_at
+        datetime ended_at
+    }
+
+    CALL_TURN {
+        string turn_id PK
+        string session_id FK
+        text transcript
+        string intent
+        text ai_response
+        int latency_ms
+        datetime created_at
+    }
+
+    LEARNER_PROFILE {
+        int id PK
+        bigint telegram_id UK
+        text[] weak_topics
+        int avg_score
+        int exams_done
+        datetime last_seen_at
+    }
+
+    CURRICULUM_CHUNK {
+        string chunk_id PK
+        string topic
+        text content
+        string source
+        vector embedding
+        datetime created_at
+    }
+```
 
 ### Database choice
 
